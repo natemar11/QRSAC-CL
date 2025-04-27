@@ -15,6 +15,8 @@ First must download the donkeycarsimulator
 
 Get the linux version of the binaries from the link on this repository [Repo](https://github.com/tawnkramer/gym-donkeycar)
 
+Create a folder called simulator and unzip contents of the zip file there
+
 cd into folder with simulator/DonkeySimLinux in one terminal and run
 ```
 ./donkey_sim.x86_64

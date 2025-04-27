@@ -15,13 +15,13 @@ First must download the donkeycarsimulator
 Get the linux version of the binaries from the link on this repository [Repo](https://github.com/tawnkramer/gym-donkeycar)
 
 cd into folder with simulator/DonkeySimLinux in one terminal and run
-'''
+```
 ./donkey_sim.x86_64
-'''
+```
 Alternatively, to run without the GUI (will run slightly faster), use the command
-'''
+```
 ./donkey_sim.x86_64 -batchmode -nographics -port 9091
-'''
+```
 
 ## Usage (run after starting donkey simulator)
 You can write your experiment settings in configs/your_config.yaml and run with 

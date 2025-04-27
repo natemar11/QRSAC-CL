@@ -16,13 +16,23 @@ from rlkit.torch.sac.policies import MakeDeterministic, TanhGaussianPolicy
 from rlkit.torch.torch_rl_algorithm import TorchVecOnlineRLAlgorithm
 
 from gym.envs.registration import register
+from gym.wrappers import ResizeObservation, GrayScaleObservation, FlattenObservation
+
+import gym_donkeycar.envs 
+
+
 
 torch.set_num_threads(4)
 torch.set_num_interop_threads(4)
 
 
-def get_dummy_env(dummy_env):
-    return dummy_env
+def get_dummy_env(env):
+    # shrink to 64×64 grayscale and then flatten
+    env = ResizeObservation(env, (64, 64))
+    env = GrayScaleObservation(env, keep_dim=True)
+    env = FlattenObservation(env)
+    return env
+
 def experiment(variant):
 
     dummy_env = make_env(variant['env'])
@@ -99,6 +109,9 @@ def experiment(variant):
         expl_env,
         policy,
     )
+    # reuse the first wrapped env for both buffer & trainer
+    dummy_env = expl_env.envs[0]
+
     replay_buffer = TorchReplayBuffer(
         variant['replay_buffer_size'],
         dummy_env,

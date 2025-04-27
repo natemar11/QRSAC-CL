@@ -9,7 +9,7 @@ filelock==3.16.1
 fsspec==2024.10.0
 glfw==2.8.0
 gtimer==1.0.0b5
-gym==0.21.0
+gym==0.24.0
 gym-notices==0.0.8
 idna==3.10
 imageio==2.36.1

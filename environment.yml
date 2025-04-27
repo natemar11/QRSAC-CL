@@ -36,7 +36,7 @@ dependencies:
       - fsspec==2024.10.0
       - glfw==2.8.0
       - gtimer==1.0.0b5
-      - gym==0.21.0
+      - gym==0.22.0
       - gym-notices==0.0.8
       - idna==3.10
       - imageio==2.36.1
@@ -77,4 +77,7 @@ dependencies:
       - tzdata==2024.2
       - urllib3==2.2.3
       - wheel==0.38.4
+      - doodad
+      - git+https://github.com/tawnkramer/gym-donkeycar.git
+
 

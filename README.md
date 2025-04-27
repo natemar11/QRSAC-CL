@@ -12,6 +12,7 @@ The github code link: [[Code]](https://github.com/shilpa2301/QRSAC)
 ##Updates - how to run (for now)
 
 First must download the donkeycarsimulator
+
 Get the linux version of the binaries from the link on this repository [Repo](https://github.com/tawnkramer/gym-donkeycar)
 
 cd into folder with simulator/DonkeySimLinux in one terminal and run

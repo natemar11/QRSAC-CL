@@ -28,7 +28,7 @@ torch.set_num_interop_threads(4)
 
 def get_dummy_env(env):
     # shrink to 64×64 grayscale and then flatten
-    env = ResizeObservation(env, (64, 64))
+    env = ResizeObservation(env, (60, 80))
     env = GrayScaleObservation(env, keep_dim=True)
     env = FlattenObservation(env)
     return env

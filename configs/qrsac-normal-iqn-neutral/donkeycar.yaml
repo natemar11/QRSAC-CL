@@ -1,9 +1,9 @@
 algorithm_kwargs:
   batch_size: 256 
-  max_path_length: 2000 
+  max_path_length: 3000 
   min_num_steps_before_training: 400 
-  num_epochs: 300 
-  num_eval_paths_per_epoch: 3
+  num_epochs: 500 
+  num_eval_paths_per_epoch: 4
   num_expl_steps_per_train_loop: 1 
   num_trains_per_train_loop: 1 
 env: donkey-generated-roads-v0

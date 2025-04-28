@@ -11,7 +11,10 @@ from rlkit.data_management.replay_buffer import ReplayBuffer
 class TorchReplayBuffer(ReplayBuffer):
 
     def __init__(self, max_replay_buffer_size, env, env_info_sizes=None):
-        observation_dim = get_dim(env.observation_space)
+        # new: support multi-dimensional observations (H×W×C)
+        observation_shape = env.observation_space.shape
+        # for any legacy code that still needs a flat dim
+        observation_dim = int(np.prod(observation_shape))
         action_dim = get_dim(env.action_space)
 
         if env_info_sizes is None:
@@ -22,23 +25,25 @@ class TorchReplayBuffer(ReplayBuffer):
 
         self._max_replay_buffer_size = max_replay_buffer_size
 
+        # new: allocate with full image shape
+        self._observations = torch.zeros(
+            (max_replay_buffer_size, *observation_shape),
+            dtype=torch.float,
+        )
+        self._next_obs = torch.zeros(
+            (max_replay_buffer_size, *observation_shape),
+            dtype=torch.float,
+        )
 
-        self._observations = torch.zeros((max_replay_buffer_size, observation_dim), dtype=torch.float).pin_memory()
-        # It's a bit memory inefficient to save the observations twice,
-        # but it makes the code *much* easier since you no longer have to
-        # worry about termination conditions.
-        self._next_obs = torch.zeros((max_replay_buffer_size, observation_dim), dtype=torch.float).pin_memory()
-        self._actions = torch.zeros((max_replay_buffer_size, action_dim), dtype=torch.float).pin_memory()
-        # Make everything a 2D np array to make it easier for other code to
-        # reason about the shape of the data
-        self._rewards = torch.zeros((max_replay_buffer_size, 1), dtype=torch.float).pin_memory()
-        # self._terminals[i] = a terminal was received at time i
-        self._terminals = torch.zeros((max_replay_buffer_size, 1), dtype=torch.float).pin_memory()
+        self._actions   = torch.zeros((max_replay_buffer_size, action_dim), dtype=torch.float)
+        self._rewards   = torch.zeros((max_replay_buffer_size, 1),          dtype=torch.float)
+        self._terminals = torch.zeros((max_replay_buffer_size, 1),          dtype=torch.float)
+
         # Define self._env_infos[key][i] to be the return value of env_info[key]
         # at time i
         self._env_infos = {}
         for key, size in env_info_sizes.items():
-            self._env_infos[key] = torch.zeros((max_replay_buffer_size, size), dtype=torch.float).pin_memory()
+            self._env_infos[key] = torch.zeros((max_replay_buffer_size, size), dtype=torch.float)
         self._env_info_keys = env_info_sizes.keys()
 
         self._top = 0
@@ -49,14 +54,14 @@ class TorchReplayBuffer(ReplayBuffer):
             self.batch = None
 
     def add_sample(self, observation, action, reward, next_observation, terminal, env_info, **kwargs):
-
-        self._observations[self._top] = torch.from_numpy(observation)
+        # assign the full image (casts to float to match buffer dtype)
+        self._observations[self._top] = torch.from_numpy(observation).float()
         if not isinstance(action, np.ndarray):
-            action = np.array(action) 
+            action = np.array(action)
         self._actions[self._top] = torch.from_numpy(action)
         self._rewards[self._top] = torch.from_numpy(reward)
         self._terminals[self._top] = torch.from_numpy(terminal)
-        self._next_obs[self._top] = torch.from_numpy(next_observation)
+        self._next_obs[self._top] = torch.from_numpy(next_observation).float()
 
         for key in self._env_info_keys:
             self._env_infos[key][self._top] = torch.from_numpy(env_info[key])

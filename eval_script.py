@@ -3,25 +3,34 @@ import torch
 from rlkit.torch.sac.policies import MakeDeterministic, TanhGaussianPolicy
 import gym
 from rlkit.envs import make_env
+from gym.wrappers import ResizeObservation, GrayScaleObservation, FlattenObservation
 # from ae.autoencoder import load_ae
 import numpy as np
+import gym_donkeycar.envs 
 
 
-with open('./eval_models/params.pkl', 'rb') as f:
+with open('./data/qrsac-donkey-generated-roads-normal-iqn-neutral/qrsac_donkey-generated-roads_normal-iqn-neutral_2025_04_27_16_11_13_0000--s-0/params.pkl', 'rb') as f:
     state_dict = torch.load(f)
 
+# Build a mini Donkey env (64×64 gray → flat) to get the right dims
+env_raw = make_env('donkey-generated-roads-v0')
+env_pre = ResizeObservation(env_raw, (64, 64))
+env_pre = GrayScaleObservation(env_pre, keep_dim=True)
+env_pre = FlattenObservation(env_pre)
+obs_dim = env_pre.observation_space.low.size   # should be 4096
+action_dim = env_pre.action_space.low.size      # should be 2
 target_policy = TanhGaussianPolicy(
-            obs_dim=111,
-            action_dim=8,
-            hidden_sizes=[256, 256, 256, 256, 256],
-            dropout_probability=0.1,
-            )
+    obs_dim=obs_dim,
+    action_dim=action_dim,
+    hidden_sizes=[256, 256, 256, 256, 256],
+    dropout_probability=0.1,
+)
 
 target_policy.load_state_dict(state_dict["trainer/policy"])
 #donkeycar
 # ae_path = "/home/pipelines/pipeline2/aae-train-donkeycar/logs/ae-32_1704492161_best.pkl"
 # ae = load_ae(ae_path)
-env = make_env('Ant-v2')
+env = env_pre
 env.seed(0)
 
 obs=env.reset()
